@@ -1,0 +1,1477 @@
+<!DOCTYPE html>
+
+<html lang="ar" dir="rtl">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        تقدير تكلفة المشاريع البرمجية
+    </title>
+
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+
+        body {
+
+            margin: 0;
+
+            font-family:
+                Arial,
+                Tahoma,
+                sans-serif;
+
+            background: #f1f5f9;
+
+            color: #1e293b;
+
+        }
+
+
+        /* ================= HEADER ================= */
+
+        .header {
+
+            background: #0f172a;
+
+            color: white;
+
+            text-align: center;
+
+            padding: 30px 20px;
+
+        }
+
+
+        .header h1 {
+
+            margin: 0;
+
+            font-size: 30px;
+
+        }
+
+
+        .header p {
+
+            margin-top: 10px;
+
+            color: #cbd5e1;
+
+        }
+
+
+        .language-buttons {
+
+            margin-top: 20px;
+
+        }
+
+
+        .language-buttons button {
+
+            padding: 8px 20px;
+
+            margin: 4px;
+
+            border-radius: 20px;
+
+            border: 1px solid #64748b;
+
+            background: transparent;
+
+            color: white;
+
+            cursor: pointer;
+
+        }
+
+
+        .language-buttons button:hover {
+
+            background: #334155;
+
+        }
+
+
+        /* ================= CONTAINER ================= */
+
+        .container {
+
+            width: 94%;
+
+            max-width: 1150px;
+
+            margin: 30px auto;
+
+        }
+
+
+        /* ================= CARD ================= */
+
+        .card {
+
+            background: white;
+
+            padding: 30px;
+
+            border-radius: 15px;
+
+            margin-bottom: 25px;
+
+            box-shadow:
+                0 4px 15px
+                rgba(0,0,0,0.06);
+
+        }
+
+
+        .section-title {
+
+            font-size: 22px;
+
+            font-weight: bold;
+
+            margin-bottom: 25px;
+
+            padding-bottom: 12px;
+
+            border-bottom:
+                1px solid #e2e8f0;
+
+        }
+
+
+        /* ================= GRID ================= */
+
+        .grid {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(2, 1fr);
+
+            gap: 22px;
+
+        }
+
+
+        /* ================= FORM ================= */
+
+        .form-group {
+
+            display: flex;
+
+            flex-direction: column;
+
+        }
+
+
+        .form-group label {
+
+            font-weight: bold;
+
+            margin-bottom: 8px;
+
+            font-size: 15px;
+
+        }
+
+
+        .question {
+
+            color: #64748b;
+
+            font-size: 13px;
+
+            line-height: 1.6;
+
+            margin-bottom: 10px;
+
+        }
+
+
+        input,
+        select {
+
+            width: 100%;
+
+            padding: 13px;
+
+            border-radius: 8px;
+
+            border:
+                1px solid #cbd5e1;
+
+            background: white;
+
+            font-size: 14px;
+
+        }
+
+
+        input:focus,
+        select:focus {
+
+            outline: none;
+
+            border-color: #2563eb;
+
+        }
+
+
+        /* ================= PROJECT TYPE ================= */
+
+        .project-type-box {
+
+            grid-column: 1 / -1;
+
+        }
+
+
+        .project-type-box select {
+
+            font-size: 16px;
+
+            padding: 15px;
+
+            cursor: pointer;
+
+        }
+
+
+        /* ================= BUTTON ================= */
+
+        .button-area {
+
+            text-align: center;
+
+            margin-top: 35px;
+
+        }
+
+
+        .estimate-button {
+
+            border: none;
+
+            background: #2563eb;
+
+            color: white;
+
+            padding: 15px 50px;
+
+            border-radius: 9px;
+
+            font-size: 16px;
+
+            font-weight: bold;
+
+            cursor: pointer;
+
+        }
+
+
+        .estimate-button:hover {
+
+            background: #1d4ed8;
+
+        }
+
+
+        /* ================= ERROR ================= */
+
+        .error {
+
+            background: #fee2e2;
+
+            color: #991b1b;
+
+            border: 1px solid #fecaca;
+
+            padding: 15px;
+
+            border-radius: 9px;
+
+            margin-bottom: 20px;
+
+        }
+
+
+        /* ================= RESULTS ================= */
+
+        .results-title {
+
+            font-size: 24px;
+
+            font-weight: bold;
+
+            margin-bottom: 25px;
+
+        }
+
+
+        .table-wrapper {
+
+            width: 100%;
+
+            overflow-x: auto;
+
+        }
+
+
+        table {
+
+            width: 100%;
+
+            border-collapse: collapse;
+
+            min-width: 650px;
+
+        }
+
+
+        th {
+
+            background: #0f172a;
+
+            color: white;
+
+            padding: 14px;
+
+            text-align: right;
+
+        }
+
+
+        td {
+
+            padding: 13px;
+
+            border-bottom:
+                1px solid #e2e8f0;
+
+        }
+
+
+        tr:hover td {
+
+            background: #f8fafc;
+
+        }
+
+
+        .important {
+
+            background: #eff6ff;
+
+            font-weight: bold;
+
+        }
+
+
+        /* ================= CURRENCIES ================= */
+
+        .currency-title {
+
+            font-size: 20px;
+
+            font-weight: bold;
+
+            margin-top: 35px;
+
+            margin-bottom: 18px;
+
+        }
+
+
+        .currency-grid {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(4, 1fr);
+
+            gap: 15px;
+
+        }
+
+
+        .currency-card {
+
+            background: #f8fafc;
+
+            border:
+                1px solid #e2e8f0;
+
+            border-radius: 10px;
+
+            padding: 20px;
+
+            text-align: center;
+
+        }
+
+
+        .currency-name {
+
+            color: #64748b;
+
+            font-size: 13px;
+
+            margin-bottom: 10px;
+
+        }
+
+
+        .currency-value {
+
+            font-size: 20px;
+
+            font-weight: bold;
+
+        }
+
+
+        /* ================= FOOTER ================= */
+
+        .footer {
+
+            text-align: center;
+
+            color: #64748b;
+
+            padding: 30px;
+
+            font-size: 13px;
+
+        }
+
+
+        /* ================= MOBILE ================= */
+
+        @media(max-width:800px) {
+
+            .grid {
+
+                grid-template-columns: 1fr;
+
+            }
+
+
+            .currency-grid {
+
+                grid-template-columns:
+                    repeat(2, 1fr);
+
+            }
+
+        }
+
+
+        @media(max-width:500px) {
+
+            .currency-grid {
+
+                grid-template-columns: 1fr;
+
+            }
+
+
+            .card {
+
+                padding: 20px;
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- =====================================================
+     HEADER
+===================================================== -->
+
+<div class="header">
+
+    <h1 id="mainTitle">
+
+        تقدير تكلفة المشاريع البرمجية
+
+    </h1>
+
+
+    <p id="subTitle">
+
+        نظام تقدير جهد وتكلفة المشاريع باستخدام الذكاء الاصطناعي
+
+    </p>
+
+
+
+    <div style="margin-top:18px;">
+        <a
+            href="/comparison"
+            style="
+                display:inline-block;
+                padding:10px 22px;
+                border-radius:9px;
+                background:#2563eb;
+                color:white;
+                text-decoration:none;
+                font-weight:bold;
+                font-size:14px;
+            "
+        >
+            📊 مقارنة الخوارزميات
+        </a>
+    </div>
+
+    <div class="language-buttons">
+
+        <button
+            type="button"
+            onclick="changeLanguage('ar')"
+        >
+            العربية
+        </button>
+
+
+        <button
+            type="button"
+            onclick="changeLanguage('en')"
+        >
+            English
+        </button>
+
+    </div>
+
+</div>
+
+
+<div class="container">
+
+
+{% if error %}
+
+<div class="error">
+
+    <strong>خطأ:</strong>
+
+    {{ error }}
+
+</div>
+
+{% endif %}
+
+
+<!-- =====================================================
+     FORM
+===================================================== -->
+
+<div class="card">
+
+
+    <div
+        class="section-title"
+        id="projectInfoTitle"
+    >
+
+        معلومات المشروع
+
+    </div>
+
+
+    <form
+        action="/predict"
+        method="POST"
+    >
+
+
+        <div class="grid">
+
+
+            <!-- =================================================
+                 PROJECT TYPE
+            ================================================= -->
+
+            <div class="form-group project-type-box">
+
+
+                <label id="projectTypeLabel">
+
+                    نوع المشروع
+
+                </label>
+
+
+                <div
+                    class="question"
+                    id="projectTypeQuestion"
+                >
+
+                    اختر نوع المشروع البرمجي
+
+                </div>
+
+
+                <select
+                    name="project_type"
+                    required
+                >
+
+
+                    <option value="">
+
+                        اختر نوع المشروع
+
+                    </option>
+
+
+                    {% for project in project_types %}
+
+                    <option
+                        value="{{ project.id }}"
+                    >
+
+                        {{ project.name_ar }}
+
+                    </option>
+
+                    {% endfor %}
+
+
+                </select>
+
+            </div>
+
+
+            <!-- =================================================
+                 LINES OF CODE
+            ================================================= -->
+
+            <div class="form-group">
+
+
+                <label id="sizeLabel">
+
+                    حجم المشروع
+
+                </label>
+
+
+                <div
+                    class="question"
+                    id="sizeQuestion"
+                >
+
+                    أدخل العدد التقريبي لأسطر الكود
+
+                </div>
+
+
+                <input
+                    type="number"
+                    name="lines_of_code"
+                    min="1"
+                    step="1"
+                    placeholder="مثال: 50000"
+                    required
+                >
+
+
+            </div>
+
+
+            <!-- =================================================
+                 COST PER PERSON MONTH
+            ================================================= -->
+
+            <div class="form-group">
+
+
+                <label id="costLabel">
+
+                    تكلفة الشخص-شهر
+
+                </label>
+
+
+                <div
+                    class="question"
+                    id="costQuestion"
+                >
+
+                    تكلفة شخص واحد لمدة شهر بالدولار
+
+                </div>
+
+
+                <input
+                    type="number"
+                    name="cost_per_pm"
+                    min="0"
+                    step="0.01"
+                    placeholder="مثال: 20"
+                    required
+                >
+
+
+            </div>
+
+
+        </div>
+
+
+        <!-- =================================================
+             DRIVERS
+        ================================================= -->
+
+        <div
+            class="section-title"
+            style="margin-top:40px"
+            id="driversTitle"
+        >
+
+            خصائص المشروع
+
+        </div>
+
+
+        <div class="grid">
+
+
+        {% for driver in drivers %}
+
+
+            <div class="form-group">
+
+
+                <label>
+
+                    {{ driver_info[driver]["ar"] }}
+
+                </label>
+
+
+                <div class="question">
+
+                    {{ driver_info[driver]["question_ar"] }}
+
+                </div>
+
+
+                <select
+                    name="{{ driver }}"
+                    required
+                >
+
+
+                    <option value="">
+
+                        اختر المستوى
+
+                    </option>
+
+
+                    <option value="vl">
+
+                        منخفض جدًا
+
+                    </option>
+
+
+                    <option value="l">
+
+                        منخفض
+
+                    </option>
+
+
+                    <option value="n">
+
+                        متوسط
+
+                    </option>
+
+
+                    <option value="h">
+
+                        مرتفع
+
+                    </option>
+
+
+                    <option value="vh">
+
+                        مرتفع جدًا
+
+                    </option>
+
+
+                    <option value="xh">
+
+                        مرتفع للغاية
+
+                    </option>
+
+
+                </select>
+
+
+            </div>
+
+
+        {% endfor %}
+
+
+        </div>
+
+
+        <!-- =================================================
+             SUBMIT
+        ================================================= -->
+
+        <div class="button-area">
+
+
+            <button
+                type="submit"
+                class="estimate-button"
+                id="estimateButton"
+            >
+
+                تقدير الجهد والتكلفة
+
+            </button>
+
+
+        </div>
+
+
+    </form>
+
+
+</div>
+
+
+
+{% if result %}
+
+
+<!-- =====================================================
+     RESULTS
+===================================================== -->
+
+<div class="card">
+
+
+    <div class="results-title">
+
+        نتائج التقدير
+
+    </div>
+
+
+    <!-- =================================================
+         INPUT TABLE
+    ================================================= -->
+
+    <div class="section-title">
+
+        مدخلات المشروع
+
+    </div>
+
+
+    <div class="table-wrapper">
+
+
+        <table>
+
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        المدخل
+                    </th>
+
+                    <th>
+                        القيمة
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+
+                <tr>
+
+                    <td>
+                        نوع المشروع
+                    </td>
+
+                    <td>
+
+                        {{ selected_project.name_ar }}
+
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        عدد أسطر الكود
+                    </td>
+
+                    <td>
+
+                        {{ "{:,.0f}".format(lines_of_code) }}
+
+                        Lines
+
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        حجم المشروع
+                    </td>
+
+                    <td>
+
+                        {{ "%.2f"|format(kloc) }}
+
+                        KLOC
+
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        تكلفة الشخص-شهر
+                    </td>
+
+                    <td>
+
+                        ${{ "%.2f"|format(cost_per_pm) }}
+
+                    </td>
+
+                </tr>
+
+
+                {% for driver in drivers %}
+
+
+                <tr>
+
+
+                    <td>
+
+                        {{ driver_info[driver]["ar"] }}
+
+                    </td>
+
+
+                    <td>
+
+
+                        {% if selected_ratings[driver] == "vl" %}
+
+                            منخفض جدًا
+
+                        {% elif selected_ratings[driver] == "l" %}
+
+                            منخفض
+
+                        {% elif selected_ratings[driver] == "n" %}
+
+                            متوسط
+
+                        {% elif selected_ratings[driver] == "h" %}
+
+                            مرتفع
+
+                        {% elif selected_ratings[driver] == "vh" %}
+
+                            مرتفع جدًا
+
+                        {% elif selected_ratings[driver] == "xh" %}
+
+                            مرتفع للغاية
+
+                        {% endif %}
+
+
+                    </td>
+
+
+                </tr>
+
+
+                {% endfor %}
+
+
+            </tbody>
+
+
+        </table>
+
+
+    </div>
+
+
+
+    <!-- =================================================
+         RESULTS
+    ================================================= -->
+
+    <div
+        class="section-title"
+        style="margin-top:40px"
+    >
+
+        النتائج
+
+    </div>
+
+
+    <div class="table-wrapper">
+
+
+        <table>
+
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        النتيجة
+                    </th>
+
+                    <th>
+                        القيمة
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+
+                <tr class="important">
+
+                    <td>
+
+                        الجهد المتوقع
+
+                    </td>
+
+
+                    <td>
+
+                        {{ "%.2f"|format(estimated_effort) }}
+
+                        Person-Months
+
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+
+                        التكلفة بالدولار
+
+                    </td>
+
+
+                    <td>
+
+                        ${{ "{:,.2f}".format(estimated_cost_usd) }}
+
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+
+                        التكلفة بالريال السعودي
+
+                    </td>
+
+
+                    <td>
+
+                        {{ "{:,.2f}".format(estimated_cost_sar) }}
+
+                        SAR
+
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+
+                        التكلفة بالدرهم الإماراتي
+
+                    </td>
+
+
+                    <td>
+
+                        {{ "{:,.2f}".format(estimated_cost_aed) }}
+
+                        AED
+
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+
+                        التكلفة بالجنيه المصري
+
+                    </td>
+
+
+                    <td>
+
+                        {{ "{:,.2f}".format(estimated_cost_egp) }}
+
+                        EGP
+
+                    </td>
+
+                </tr>
+
+
+            </tbody>
+
+
+        </table>
+
+
+    </div>
+
+
+
+    <!-- =================================================
+         CURRENCY CARDS
+    ================================================= -->
+
+    <div class="currency-title">
+
+        التكلفة بالعملات المختلفة
+
+    </div>
+
+
+    <div class="currency-grid">
+
+
+        <div class="currency-card">
+
+            <div class="currency-name">
+
+                الدولار الأمريكي
+
+            </div>
+
+
+            <div class="currency-value">
+
+                ${{ "{:,.2f}".format(estimated_cost_usd) }}
+
+            </div>
+
+        </div>
+
+
+        <div class="currency-card">
+
+            <div class="currency-name">
+
+                الريال السعودي
+
+            </div>
+
+
+            <div class="currency-value">
+
+                {{ "{:,.2f}".format(estimated_cost_sar) }}
+
+                SAR
+
+            </div>
+
+        </div>
+
+
+        <div class="currency-card">
+
+            <div class="currency-name">
+
+                الدرهم الإماراتي
+
+            </div>
+
+
+            <div class="currency-value">
+
+                {{ "{:,.2f}".format(estimated_cost_aed) }}
+
+                AED
+
+            </div>
+
+        </div>
+
+
+        <div class="currency-card">
+
+            <div class="currency-name">
+
+                الجنيه المصري
+
+            </div>
+
+
+            <div class="currency-value">
+
+                {{ "{:,.2f}".format(estimated_cost_egp) }}
+
+                EGP
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+</div>
+
+
+{% endif %}
+
+
+</div>
+
+
+<!-- =====================================================
+     FOOTER
+===================================================== -->
+
+<div class="footer">
+
+    تقدير تكلفة المشاريع البرمجية باستخدام الذكاء الاصطناعي
+
+</div>
+
+
+
+<script>
+
+
+function changeLanguage(language) {
+
+
+    const title =
+        document.getElementById("mainTitle");
+
+    const subtitle =
+        document.getElementById("subTitle");
+
+    const projectInfo =
+        document.getElementById("projectInfoTitle");
+
+    const projectType =
+        document.getElementById("projectTypeLabel");
+
+    const projectQuestion =
+        document.getElementById("projectTypeQuestion");
+
+    const size =
+        document.getElementById("sizeLabel");
+
+    const sizeQuestion =
+        document.getElementById("sizeQuestion");
+
+    const cost =
+        document.getElementById("costLabel");
+
+    const costQuestion =
+        document.getElementById("costQuestion");
+
+    const drivers =
+        document.getElementById("driversTitle");
+
+    const button =
+        document.getElementById("estimateButton");
+
+
+    if (language === "en") {
+
+
+        document.documentElement.lang = "en";
+
+        document.documentElement.dir = "ltr";
+
+
+        title.innerText =
+            "Software Project Cost Estimation";
+
+
+        subtitle.innerText =
+            "AI-Based Software Effort and Cost Estimation System";
+
+
+        projectInfo.innerText =
+            "Project Information";
+
+
+        projectType.innerText =
+            "Project Type";
+
+
+        projectQuestion.innerText =
+            "Choose the software project type";
+
+
+        size.innerText =
+            "Project Size";
+
+
+        sizeQuestion.innerText =
+            "Enter the approximate number of lines of code";
+
+
+        cost.innerText =
+            "Cost per Person-Month";
+
+
+        costQuestion.innerText =
+            "Enter the cost of one person-month in USD";
+
+
+        drivers.innerText =
+            "Project Characteristics";
+
+
+        button.innerText =
+            "Estimate Effort & Cost";
+
+
+    }
+
+
+    else {
+
+
+        document.documentElement.lang = "ar";
+
+        document.documentElement.dir = "rtl";
+
+
+        title.innerText =
+            "تقدير تكلفة المشاريع البرمجية";
+
+
+        subtitle.innerText =
+            "نظام تقدير جهد وتكلفة المشاريع باستخدام الذكاء الاصطناعي";
+
+
+        projectInfo.innerText =
+            "معلومات المشروع";
+
+
+        projectType.innerText =
+            "نوع المشروع";
+
+
+        projectQuestion.innerText =
+            "اختر نوع المشروع البرمجي";
+
+
+        size.innerText =
+            "حجم المشروع";
+
+
+        sizeQuestion.innerText =
+            "أدخل العدد التقريبي لأسطر الكود";
+
+
+        cost.innerText =
+            "تكلفة الشخص-شهر";
+
+
+        costQuestion.innerText =
+            "تكلفة شخص واحد لمدة شهر بالدولار";
+
+
+        drivers.innerText =
+            "خصائص المشروع";
+
+
+        button.innerText =
+            "تقدير الجهد والتكلفة";
+
+
+    }
+
+}
+
+
+</script>
+
+
+</body>
+
+</html>
