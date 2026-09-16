@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>مقارنة الخوارزميات</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, Tahoma, sans-serif;
+            background: #f4f6f9;
+            color: #222;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 92%;
+            max-width: 1150px;
+            margin: 35px auto;
+        }
+
+        /* ================= HEADER ================= */
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 18px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+        }
+
+        .header h1 {
+            font-size: 30px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 16px;
+            line-height: 1.8;
+        }
+
+        .back-btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 22px;
+            background: #222;
+            color: white;
+            text-decoration: none;
+            border-radius: 9px;
+            transition: 0.2s;
+        }
+
+        .back-btn:hover {
+            opacity: 0.85;
+        }
+
+        /* ================= CARDS ================= */
+
+        .card {
+            background: white;
+            padding: 28px;
+            border-radius: 18px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+        }
+
+        .card h2 {
+            font-size: 23px;
+            margin-bottom: 22px;
+        }
+
+        /* ================= TABLE ================= */
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 650px;
+        }
+
+        th {
+            background: #222;
+            color: white;
+            padding: 17px 12px;
+            font-size: 16px;
+        }
+
+        td {
+            padding: 17px 12px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+            font-size: 16px;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover {
+            background: #f7f7f7;
+        }
+
+        .algorithm {
+            font-weight: bold;
+        }
+
+        .value {
+            font-weight: bold;
+        }
+
+        /* ================= MODEL CARDS ================= */
+
+        .models {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .model-box {
+            border: 1px solid #ddd;
+            border-radius: 14px;
+            padding: 25px;
+            background: #fafafa;
+        }
+
+        .model-box h3 {
+            font-size: 21px;
+            margin-bottom: 12px;
+        }
+
+        .model-box p {
+            color: #555;
+            line-height: 1.8;
+        }
+
+        /* ================= METRICS ================= */
+
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+        }
+
+        .metric-box {
+            background: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 14px;
+            padding: 22px;
+        }
+
+        .metric-box h3 {
+            margin-bottom: 10px;
+            font-size: 20px;
+        }
+
+        .metric-box p {
+            color: #555;
+            line-height: 1.7;
+        }
+
+        .metric-box strong {
+            display: block;
+            margin-top: 10px;
+            color: #222;
+        }
+
+        /* ================= INFO ================= */
+
+        .info {
+            background: #fafafa;
+            border-radius: 12px;
+            padding: 20px;
+            line-height: 2;
+            color: #555;
+        }
+
+        .info ul {
+            margin-top: 10px;
+            padding-right: 25px;
+        }
+
+        /* ================= FOOTER ================= */
+
+        .footer {
+            text-align: center;
+            color: #777;
+            margin: 30px 0;
+            font-size: 14px;
+        }
+
+        /* ================= MOBILE ================= */
+
+        @media (max-width: 800px) {
+
+            .models {
+                grid-template-columns: 1fr;
+            }
+
+            .metrics {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                width: 95%;
+                margin: 20px auto;
+            }
+
+            .header h1 {
+                font-size: 25px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+
+    <!-- ================= HEADER ================= -->
+
+    <div class="header">
+
+        <h1>
+            مقارنة خوارزميات تعلم الآلة
+        </h1>
+
+        <p>
+            مقارنة أداء خوارزمية
+            Decision Tree
+            وخوارزمية
+            Random Forest
+            في تقدير جهد مشاريع البرمجيات.
+        </p>
+
+        <a href="/" class="back-btn">
+            ← العودة إلى نظام تقدير التكلفة
+        </a>
+
+    </div>
+
+
+    <!-- ================= RESULTS TABLE ================= -->
+
+    <div class="card">
+
+        <h2>
+            نتائج المقارنة
+        </h2>
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            الخوارزمية
+                        </th>
+
+                        <th>
+                            MAE
+                        </th>
+
+                        <th>
+                            RMSE
+                        </th>
+
+                        <th>
+                            R²
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for row in results %}
+
+                    <tr>
+
+                        <td class="algorithm">
+
+                            {% if "Decision" in row["model"] %}
+
+                                Decision Tree
+
+                            {% elif "Random" in row["model"] %}
+
+                                Random Forest
+
+                            {% else %}
+
+                                {{ row["model"] }}
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <td class="value">
+
+                            {{ "%.2f"|format(row["mae"]) }}
+
+                        </td>
+
+
+                        <td class="value">
+
+                            {{ "%.2f"|format(row["rmse"]) }}
+
+                        </td>
+
+
+                        <td class="value">
+
+                            {{ "%.4f"|format(row["r2"]) }}
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================= MODELS ================= -->
+
+    <div class="card">
+
+        <h2>
+            الخوارزميات المستخدمة
+        </h2>
+
+
+        <div class="models">
+
+
+            <div class="model-box">
+
+                <h3>
+                    Decision Tree
+                </h3>
+
+                <p>
+                    خوارزمية تعتمد على بناء شجرة من القرارات
+                    لتقسيم البيانات إلى مجموعات تساعد في
+                    تقدير جهد المشروع البرمجي.
+                </p>
+
+            </div>
+
+
+            <div class="model-box">
+
+                <h3>
+                    Random Forest
+                </h3>
+
+                <p>
+                    خوارزمية تجمع عدة أشجار قرار وتستخدم
+                    نتائجها معاً للحصول على تنبؤ أكثر استقراراً
+                    لتقدير جهد المشروع.
+                </p>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+    <!-- ================= METRICS ================= -->
+
+    <div class="card">
+
+        <h2>
+            مقاييس تقييم النموذج
+        </h2>
+
+
+        <div class="metrics">
+
+
+            <div class="metric-box">
+
+                <h3>
+                    MAE
+                </h3>
+
+                <p>
+                    متوسط الخطأ المطلق بين القيمة الحقيقية
+                    والقيمة التي تنبأ بها النموذج.
+                </p>
+
+                <strong>
+                    القيمة الأقل تعني خطأ أقل.
+                </strong>
+
+            </div>
+
+
+            <div class="metric-box">
+
+                <h3>
+                    RMSE
+                </h3>
+
+                <p>
+                    الجذر التربيعي لمتوسط مربع الأخطاء،
+                    ويعطي تأثيراً أكبر للأخطاء الكبيرة.
+                </p>
+
+                <strong>
+                    القيمة الأقل تعني خطأ أقل.
+                </strong>
+
+            </div>
+
+
+            <div class="metric-box">
+
+                <h3>
+                    R²
+                </h3>
+
+                <p>
+                    يوضح مقدار التباين في البيانات الذي يستطيع
+                    النموذج تفسيره.
+                </p>
+
+                <strong>
+                    القيمة الأعلى تعني تبايناً مفسراً أكبر.
+                </strong>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+    <!-- ================= INFORMATION ================= -->
+
+    <div class="card">
+
+        <h2>
+            معلومات المقارنة
+        </h2>
+
+
+        <div class="info">
+
+            تم تدريب الخوارزميتين باستخدام نفس مجموعة البيانات
+            ونفس خصائص الإدخال، ثم تم تقييم أداء النماذج باستخدام
+            مقاييس الخطأ التالية:
+
+            <ul>
+
+                <li>
+                    Mean Absolute Error (MAE)
+                </li>
+
+                <li>
+                    Root Mean Squared Error (RMSE)
+                </li>
+
+                <li>
+                    R² Score
+                </li>
+
+            </ul>
+
+            <br>
+
+            الهدف من هذه الصفحة هو عرض نتائج الخوارزميات
+            المستخدمة في مشروع تقدير جهد وتكلفة المشاريع
+            البرمجية.
+
+        </div>
+
+    </div>
+
+
+    <div class="footer">
+
+        Software Project Cost Estimation Using AI Tools
+
+    </div>
+
+
+</div>
+
+
+</body>
+
+</html>
