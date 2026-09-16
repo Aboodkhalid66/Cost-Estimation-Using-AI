@@ -1,0 +1,569 @@
+import joblib
+import numpy as np
+import pandas as pd
+from scipy.io import arff
+
+from sklearn.ensemble import HistGradientBoostingRegressor
+from sklearn.model_selection import KFold
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+
+
+# ============================================================
+# 1. LOAD DATA
+# ============================================================
+
+data, meta = arff.loadarff("nasa93.arff")
+df = pd.DataFrame(data)
+
+for col in df.columns:
+    if df[col].dtype == object:
+        df[col] = df[col].apply(
+            lambda x: x.decode("utf-8")
+            if isinstance(x, bytes) else x
+        )
+
+print("=" * 70)
+print("MONOTONIC SOFTWARE EFFORT ESTIMATION MODEL")
+print("=" * 70)
+
+print(f"\nDataset rows: {len(df)}")
+print(f"Dataset columns: {len(df.columns)}")
+
+
+# ============================================================
+# 2. TARGET
+# ============================================================
+
+target = "act_effort"
+
+df[target] = pd.to_numeric(
+    df[target],
+    errors="coerce"
+)
+
+df["equivphyskloc"] = pd.to_numeric(
+    df["equivphyskloc"],
+    errors="coerce"
+)
+
+df = df[
+    df[target].notna() &
+    (df[target] > 0) &
+    df["equivphyskloc"].notna() &
+    (df["equivphyskloc"] > 0)
+].copy()
+
+y = df[target].astype(float)
+
+
+# ============================================================
+# 3. DRIVERS
+# ============================================================
+
+driver_names = [
+    "rely",
+    "data",
+    "cplx",
+    "time",
+    "stor",
+    "virt",
+    "turn",
+    "acap",
+    "aexp",
+    "pcap",
+    "vexp",
+    "lexp",
+    "modp",
+    "tool",
+    "sced"
+]
+
+
+# ============================================================
+# 4. ORIGINAL RATING VALUES
+# ============================================================
+
+rating_values = {
+    "vl": 0.5,
+    "l": 0.75,
+    "n": 1.0,
+    "h": 1.15,
+    "vh": 1.30,
+    "xh": 1.45
+}
+
+
+# ============================================================
+# 5. COCOMO-STYLE WEIGHTS
+# ============================================================
+
+driver_weights = {
+
+    "rely": {
+        "vl": 0.75, "l": 0.88, "n": 1.00,
+        "h": 1.15, "vh": 1.40, "xh": 1.40
+    },
+
+    "data": {
+        "vl": 0.93, "l": 0.93, "n": 1.00,
+        "h": 1.08, "vh": 1.16, "xh": 1.16
+    },
+
+    "cplx": {
+        "vl": 0.70, "l": 0.85, "n": 1.00,
+        "h": 1.15, "vh": 1.30, "xh": 1.65
+    },
+
+    "time": {
+        "vl": 1.00, "l": 1.00, "n": 1.00,
+        "h": 1.11, "vh": 1.30, "xh": 1.66
+    },
+
+    "stor": {
+        "vl": 1.00, "l": 1.00, "n": 1.00,
+        "h": 1.06, "vh": 1.21, "xh": 1.56
+    },
+
+    "virt": {
+        "vl": 0.87, "l": 0.87, "n": 1.00,
+        "h": 1.15, "vh": 1.30, "xh": 1.30
+    },
+
+    "turn": {
+        "vl": 0.87, "l": 0.87, "n": 1.00,
+        "h": 1.07, "vh": 1.15, "xh": 1.30
+    },
+
+    "acap": {
+        "vl": 1.42, "l": 1.19, "n": 1.00,
+        "h": 0.85, "vh": 0.71, "xh": 0.71
+    },
+
+    "aexp": {
+        "vl": 1.22, "l": 1.10, "n": 1.00,
+        "h": 0.88, "vh": 0.81, "xh": 0.81
+    },
+
+    "pcap": {
+        "vl": 1.34, "l": 1.15, "n": 1.00,
+        "h": 0.88, "vh": 0.76, "xh": 0.76
+    },
+
+    "vexp": {
+        "vl": 1.21, "l": 1.10, "n": 1.00,
+        "h": 0.90, "vh": 0.90, "xh": 0.90
+    },
+
+    "lexp": {
+        "vl": 1.14, "l": 1.07, "n": 1.00,
+        "h": 0.95, "vh": 0.95, "xh": 0.95
+    },
+
+    "modp": {
+        "vl": 1.24, "l": 1.10, "n": 1.00,
+        "h": 0.91, "vh": 0.82, "xh": 0.82
+    },
+
+    "tool": {
+        "vl": 1.24, "l": 1.10, "n": 1.00,
+        "h": 0.91, "vh": 0.82, "xh": 0.82
+    },
+
+    "sced": {
+        "vl": 1.23, "l": 1.08, "n": 1.00,
+        "h": 1.04, "vh": 1.10, "xh": 1.10
+    }
+}
+
+
+# ============================================================
+# 6. ENCODE RATINGS
+# ============================================================
+
+for driver in driver_names:
+
+    df[driver] = (
+        df[driver]
+        .astype(str)
+        .str.lower()
+        .map(rating_values)
+        .fillna(1.0)
+    )
+
+
+# ============================================================
+# 7. ADD COCOMO WEIGHT FEATURES
+# ============================================================
+
+for driver in driver_names:
+
+    original_values = (
+        df[driver]
+        .copy()
+    )
+
+    # Convert the encoded rating back to its rating name
+    reverse_rating = {
+        0.5: "vl",
+        0.75: "l",
+        1.0: "n",
+        1.15: "h",
+        1.30: "vh",
+        1.45: "xh"
+    }
+
+    df[f"{driver}_weight"] = (
+        original_values
+        .map(reverse_rating)
+        .map(driver_weights[driver])
+        .fillna(1.0)
+    )
+
+
+# ============================================================
+# 8. PROJECT SIZE FEATURES
+# ============================================================
+
+df["log_equivphyskloc"] = np.log1p(
+    df["equivphyskloc"]
+)
+
+
+# ============================================================
+# 9. DOMAIN ENCODING
+# ============================================================
+
+df["cat2"] = df["cat2"].astype(str)
+
+domain_dummies = pd.get_dummies(
+    df["cat2"],
+    prefix="cat2"
+).astype(float)
+
+df = pd.concat(
+    [
+        df.reset_index(drop=True),
+        domain_dummies.reset_index(drop=True)
+    ],
+    axis=1
+)
+
+
+# ============================================================
+# 10. FEATURES
+# ============================================================
+
+features = [
+    "equivphyskloc",
+    "log_equivphyskloc"
+]
+
+features += driver_names
+
+features += [
+    f"{driver}_weight"
+    for driver in driver_names
+]
+
+domain_features = list(domain_dummies.columns)
+
+features += domain_features
+
+
+X = df[features].copy()
+
+X = X.apply(
+    pd.to_numeric,
+    errors="coerce"
+)
+
+X = X.replace(
+    [np.inf, -np.inf],
+    np.nan
+)
+
+X = X.fillna(X.median())
+
+X = X.fillna(0)
+
+print("\nTotal model features:", len(features))
+
+
+# ============================================================
+# 11. LOG TARGET
+# ============================================================
+
+y_log = np.log1p(y)
+
+
+# ============================================================
+# 12. MONOTONIC CONSTRAINTS
+# ============================================================
+
+#  1 = increasing
+# -1 = decreasing
+#  0 = no constraint
+
+monotonic_constraints = []
+
+for feature in features:
+
+    # Project size
+    if feature in [
+        "equivphyskloc",
+        "log_equivphyskloc"
+    ]:
+        monotonic_constraints.append(1)
+
+    # Drivers that increase effort
+    elif feature in [
+        "rely",
+        "data",
+        "cplx",
+        "time",
+        "stor",
+        "virt",
+        "turn",
+        "sced"
+    ]:
+        monotonic_constraints.append(1)
+
+    # Capability / experience / tools
+    elif feature in [
+        "acap",
+        "aexp",
+        "pcap",
+        "vexp",
+        "lexp",
+        "modp",
+        "tool"
+    ]:
+        monotonic_constraints.append(-1)
+
+    # Weight features
+    elif feature.endswith("_weight"):
+
+        driver = feature.replace(
+            "_weight",
+            ""
+        )
+
+        if driver in [
+            "rely",
+            "data",
+            "cplx",
+            "time",
+            "stor",
+            "virt",
+            "turn",
+            "sced"
+        ]:
+            monotonic_constraints.append(1)
+
+        elif driver in [
+            "acap",
+            "aexp",
+            "pcap",
+            "vexp",
+            "lexp",
+            "modp",
+            "tool"
+        ]:
+            monotonic_constraints.append(-1)
+
+        else:
+            monotonic_constraints.append(0)
+
+    # Domain has no forced direction
+    else:
+        monotonic_constraints.append(0)
+
+
+print(
+    "Monotonic constraints:",
+    len(monotonic_constraints)
+)
+
+
+# ============================================================
+# 13. MODEL
+# ============================================================
+
+model = HistGradientBoostingRegressor(
+    max_iter=300,
+    learning_rate=0.04,
+    max_leaf_nodes=15,
+    min_samples_leaf=5,
+    l2_regularization=1.0,
+    monotonic_cst=monotonic_constraints,
+    random_state=42
+)
+
+
+# ============================================================
+# 14. 5-FOLD CROSS VALIDATION
+# ============================================================
+
+kf = KFold(
+    n_splits=5,
+    shuffle=True,
+    random_state=42
+)
+
+mae_scores = []
+rmse_scores = []
+r2_scores = []
+
+print("\n" + "=" * 70)
+print("5-FOLD CROSS VALIDATION")
+print("=" * 70)
+
+for fold, (train_idx, test_idx) in enumerate(
+    kf.split(X),
+    start=1
+):
+
+    X_train = X.iloc[train_idx]
+    X_test = X.iloc[test_idx]
+
+    y_train = y_log.iloc[train_idx]
+    y_test = y_log.iloc[test_idx]
+
+    fold_model = HistGradientBoostingRegressor(
+        max_iter=300,
+        learning_rate=0.04,
+        max_leaf_nodes=15,
+        min_samples_leaf=5,
+        l2_regularization=1.0,
+        monotonic_cst=monotonic_constraints,
+        random_state=42
+    )
+
+    fold_model.fit(
+        X_train,
+        y_train
+    )
+
+    pred_log = fold_model.predict(
+        X_test
+    )
+
+    mae = mean_absolute_error(
+        y_test,
+        pred_log
+    )
+
+    rmse = np.sqrt(
+        mean_squared_error(
+            y_test,
+            pred_log
+        )
+    )
+
+    r2 = r2_score(
+        y_test,
+        pred_log
+    )
+
+    mae_scores.append(mae)
+    rmse_scores.append(rmse)
+    r2_scores.append(r2)
+
+    print(
+        f"Fold {fold}: "
+        f"MAE={mae:.4f}, "
+        f"RMSE={rmse:.4f}, "
+        f"R²={r2:.4f}"
+    )
+
+
+# ============================================================
+# 15. RESULTS
+# ============================================================
+
+mean_mae = np.mean(mae_scores)
+mean_rmse = np.mean(rmse_scores)
+mean_r2 = np.mean(r2_scores)
+
+print("\n" + "=" * 70)
+print("AVERAGE RESULTS")
+print("=" * 70)
+
+print(f"Mean MAE : {mean_mae:.4f}")
+print(f"Mean RMSE: {mean_rmse:.4f}")
+print(f"Mean R²  : {mean_r2:.4f}")
+
+
+# ============================================================
+# 16. TRAIN FINAL MODEL
+# ============================================================
+
+print("\nTraining final model...")
+
+model.fit(
+    X,
+    y_log
+)
+
+
+# ============================================================
+# 17. SAVE FINAL FILES
+# ============================================================
+
+joblib.dump(
+    model,
+    "monotonic_effort_model.pkl"
+)
+
+joblib.dump(
+    features,
+    "monotonic_model_features.pkl"
+)
+
+joblib.dump(
+    driver_weights,
+    "monotonic_driver_weights.pkl"
+)
+
+joblib.dump(
+    list(domain_dummies.columns),
+    "monotonic_domains.pkl"
+)
+
+results = pd.DataFrame({
+    "Fold": [1, 2, 3, 4, 5],
+    "MAE": mae_scores,
+    "RMSE": rmse_scores,
+    "R2": r2_scores
+})
+
+results.loc[len(results)] = [
+    "Mean",
+    mean_mae,
+    mean_rmse,
+    mean_r2
+]
+
+results.to_csv(
+    "monotonic_training_results.csv",
+    index=False
+)
+
+
+# ============================================================
+# 18. FINISHED
+# ============================================================
+
+print("\n" + "=" * 70)
+print("TRAINING COMPLETED SUCCESSFULLY")
+print("=" * 70)
+
+print("\nCreated files:")
+
+print("monotonic_effort_model.pkl")
+print("monotonic_model_features.pkl")
+print("monotonic_driver_weights.pkl")
+print("monotonic_domains.pkl")
+print("monotonic_training_results.csv")
+
+print("\nThe monotonic model is ready for testing.")
